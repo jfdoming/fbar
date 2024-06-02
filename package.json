@@ -1,0 +1,17 @@
+{
+  "name": "fbar",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Account analysis via Actual Budget for the FBAR form",
+  "main": "index.js",
+  "author": "Julian Dominguez-Schatz <julian.dominguezschatz@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@actual-app/api": "^6.7.1"
+  },
+  "scripts": {
+    "pull": "scripts/pull",
+    "repl": "scripts/repl"
+  },
+  "packageManager": "yarn@4.2.2"
+}

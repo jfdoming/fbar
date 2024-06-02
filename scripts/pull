@@ -1,0 +1,4 @@
+#!/bin/sh
+set -euo pipefail
+
+node --env-file .env index.js "$@"
