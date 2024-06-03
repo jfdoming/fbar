@@ -5,7 +5,7 @@ import api, { q, runQuery } from "@actual-app/api";
 import { setup, teardown } from "./api.js";
 import main from "./main.js";
 import options from "./args.js";
-import ExchangeRateList from "./ExchangeRateList.js";
+import ForeignExchange from "./ForeignExchange.js";
 import * as utils from "./utils.js";
 
 await setup();
@@ -17,9 +17,7 @@ started.context.runQuery = async (query) => (await runQuery(query)).data;
 started.context.rq = started.context.runQuery;
 started.context.pull = (props = {}) =>
   main({ budgetYear: options["budget-year"].promptDefault, ...props });
-started.context.rates = new ExchangeRateList(
-  utils.endOfYear(utils.previousYear())
-);
+started.context.fx = new ForeignExchange(utils.endOfYear(utils.previousYear()));
 Object.keys(utils).forEach((util) => {
   started.context[util] = utils[util];
 });
