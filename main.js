@@ -1,6 +1,12 @@
 import { q, runQuery } from "@actual-app/api";
 
-const main = async ({ budgetYear }) => {
+import { inOrder } from "./utils.js";
+
+const main = async ({ budgetYear } = {}) => {
+  if (!budgetYear) {
+    throw new Error("budgetYear is required");
+  }
+
   const { data } = await runQuery(
     q("transactions")
       .filter({ date: { $transform: "$year", $eq: String(budgetYear) } })
