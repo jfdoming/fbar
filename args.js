@@ -8,4 +8,9 @@ export default {
     type: "boolean",
     default: false,
   },
+  "report-mode": {
+    type: "string",
+    values: ["simple", "short", "full"],
+    default: "simple",
+  },
 };

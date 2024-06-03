@@ -55,7 +55,7 @@ const getMetadata = async () => {
   }
 };
 
-const main = async ({ budgetYear } = {}) => {
+const main = async ({ budgetYear, reportMode } = {}) => {
   if (!budgetYear) {
     throw new Error("budgetYear is required");
   }
@@ -111,10 +111,11 @@ const main = async ({ budgetYear } = {}) => {
       const date = row["date"];
 
       if (metadata === null) {
-        return { accountName, balance, date };
+        return { accountName, originalBalance: balance, date, type: "Bank" };
       }
 
-      const accountCurrency = accountMetadata[row["account.name"]]["currency"];
+      const account = accountMetadata[row["account.name"]];
+      const accountCurrency = account["currency"];
       const currencyDetails =
         typeof accountCurrency === "string"
           ? currencyMetadata[accountCurrency]
@@ -123,26 +124,60 @@ const main = async ({ budgetYear } = {}) => {
         throw new Error(`Currency ${accountCurrency} is not valid`);
       }
 
-      const exchangeRate = await fx.getUSDExchangeRate(
+      const fullExchangeRate = await fx.getUSDExchangeRate(
         currencyDetails["country"],
         currencyDetails["currencyName"]
       );
+
+      const usdBalance = fx.formatCurrency(balance * fullExchangeRate, "USD");
+      const roundedUsdBalance = fx.formatCurrency(
+        Math.ceil(balance * fullExchangeRate),
+        "USD",
+        0
+      );
+      const originalBalance = fx.formatCurrency(
+        balance,
+        currencyDetails["code"]
+      );
+      const exchangeRate = fullExchangeRate.toFixed(4);
+      const type = account["type"] ?? "Bank";
+      const typeDetails = account["typeDetails"];
+      if (type === "Other" && !typeDetails) {
+        throw new Error(
+          `typeDetails field is required for accounts of type Other`
+        );
+      }
+
+      if (reportMode === "full") {
+        return {
+          accountName,
+          usdBalance,
+          roundedUsdBalance,
+          originalBalance,
+          exchangeRate,
+          date,
+          type,
+          ...(type === "Other" ? { typeDetails } : {}),
+        };
+      }
+
       return {
         accountName,
-        usdBalance: fx.formatCurrency(balance * exchangeRate, "USD"),
-        roundedUsdBalance: fx.formatCurrency(
-          Math.ceil(balance * exchangeRate),
-          "USD",
-          0
-        ),
-        originalBalance: fx.formatCurrency(balance, currencyDetails["code"]),
-        exchangeRate: exchangeRate.toFixed(4),
-        date,
+        usdBalance: roundedUsdBalance,
+        type,
+        ...(type === "Other" ? { typeDetails } : {}),
       };
     })
   );
 
-  console.log(results);
+  const resultMap = results.reduce(
+    (map, { accountName, ...result }) => ({
+      ...map,
+      [accountName]: reportMode === "simple" ? result.usdBalance : result,
+    }),
+    {}
+  );
+  console.log(resultMap);
 
   if (metadata !== null) {
     const reportAccounts = Object.entries(accountMetadata)

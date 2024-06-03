@@ -17,6 +17,10 @@ await inOrder(
         config.promptDefault;
     }
 
+    if (config.values && !config.values.includes(values[name])) {
+      throw new Error(`Invalid value ${values[name]} for argument --${name}`);
+    }
+
     const camelCaseName = name
       .split("-")
       .map(
