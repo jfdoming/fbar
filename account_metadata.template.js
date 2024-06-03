@@ -3,6 +3,7 @@ export default {
   accounts: {
     "My account #1": {
       type: "Bank", // Bank, Securities, or Other
+      institution: "ABC",
       currency: "CAD",
     },
 
@@ -39,6 +40,19 @@ export default {
     EUR: {
       country: "Euro Zone",
       currencyName: "Euro",
+    },
+  },
+
+  institutions: {
+    ABC: {
+      legalName: "ABC Bank",
+      address: {
+        street: "",
+        city: "",
+        province: "",
+        country: "",
+        postalCode: "",
+      },
     },
   },
 };

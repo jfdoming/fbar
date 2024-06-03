@@ -61,8 +61,11 @@ const main = async ({ budgetYear, reportMode } = {}) => {
   }
 
   const metadata = await getMetadata();
-  const { accounts: accountMetadata, currencies: currencyMetadata } =
-    metadata ?? {};
+  const {
+    accounts: accountMetadata,
+    currencies: currencyMetadata,
+    institutions: institutionMetadata,
+  } = metadata ?? {};
 
   // See https://github.com/actualbudget/actual/blob/master/packages/loot-core/src/server/aql/schema/index.ts
   const { data: accounts } = await runQuery(q("accounts").select("name"));
@@ -149,6 +152,11 @@ const main = async ({ budgetYear, reportMode } = {}) => {
         );
       }
 
+      const institution = account["institution"];
+      if (typeof institution !== "string") {
+        throw new Error("institution field is required for all accounts");
+      }
+
       if (reportMode === "full") {
         return {
           accountName,
@@ -159,6 +167,7 @@ const main = async ({ budgetYear, reportMode } = {}) => {
           date,
           type,
           ...(type === "Other" ? { typeDetails } : {}),
+          institution,
         };
       }
 
@@ -167,6 +176,7 @@ const main = async ({ budgetYear, reportMode } = {}) => {
         usdBalance: roundedUsdBalance,
         type,
         ...(type === "Other" ? { typeDetails } : {}),
+        institution,
       };
     })
   );
@@ -178,7 +188,29 @@ const main = async ({ budgetYear, reportMode } = {}) => {
     }),
     {}
   );
-  console.log(resultMap);
+
+  if (reportMode === "full") {
+    console.log(resultMap);
+  } else {
+    console.table(resultMap);
+  }
+
+  if (reportMode !== "simple") {
+    const institutions = Object.entries(institutionMetadata).reduce(
+      (map, [name, { legalName, address }]) => {
+        const addressFields = Object.entries(address).reduce(
+          (map, [key, value]) => ({
+            ...map,
+            [`address.${key}`]: value,
+          }),
+          {}
+        );
+        return { ...map, [name]: { legalName, ...addressFields } };
+      },
+      {}
+    );
+    console.table(institutions);
+  }
 
   if (metadata !== null) {
     const reportAccounts = Object.entries(accountMetadata)
