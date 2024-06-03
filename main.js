@@ -61,7 +61,7 @@ const main = async ({ budgetYear, reportMode } = {}) => {
   }
 
   const metadata = await getMetadata();
-  const { accounts: accountMetadata, currencyAliases: currencyMetadata } =
+  const { accounts: accountMetadata, currencies: currencyMetadata } =
     metadata ?? {};
 
   // See https://github.com/actualbudget/actual/blob/master/packages/loot-core/src/server/aql/schema/index.ts
@@ -137,7 +137,8 @@ const main = async ({ budgetYear, reportMode } = {}) => {
       );
       const originalBalance = fx.formatCurrency(
         balance,
-        currencyDetails["code"]
+        currencyDetails["code"] ??
+          (typeof accountCurrency === "string" ? accountCurrency : undefined)
       );
       const exchangeRate = fullExchangeRate.toFixed(4);
       const type = account["type"] ?? "Bank";

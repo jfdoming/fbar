@@ -30,15 +30,13 @@ export default {
   },
 
   // Provide more details on all currencies used above.
-  currencyAliases: {
+  currencies: {
     // See https://fiscaldata.treasury.gov/currency-exchange-rates-converter/ for hints
     CAD: {
-      code: "CAD",
       country: "Canada",
       currencyName: "Dollar",
     },
     EUR: {
-      code: "EUR",
       country: "Euro Zone",
       currencyName: "Euro",
     },
