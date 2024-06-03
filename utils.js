@@ -9,7 +9,7 @@ export const ask = async (query) => {
 };
 
 export const inOrder = async (promises) => {
-  const { results } = await promises.reduce(async (prevPromise, curPromise) => {
+  const results = await promises.reduce(async (prevPromise, curPromise) => {
     const results = await prevPromise;
     const result = await curPromise;
     return [...results, result];
