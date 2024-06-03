@@ -16,3 +16,8 @@ export const inOrder = async (promises) => {
   }, Promise.resolve([]));
   return results;
 };
+
+export const previousYear = (date = new Date()) =>
+  new Date(date.getFullYear() - 1, date.getMonth(), date.getDay());
+
+export const endOfYear = (date) => new Date(date.getFullYear(), 12, 0);
