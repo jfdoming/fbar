@@ -157,9 +157,15 @@ const main = async ({ budgetYear, reportMode } = {}) => {
         throw new Error("institution field is required for all accounts");
       }
 
+      const accountNumber = account["accountNumber"];
+      if (typeof accountNumber !== "string") {
+        throw new Error("accountNumber field is required for all accounts");
+      }
+
       if (reportMode === "full") {
         return {
           accountName,
+          accountNumber,
           usdBalance,
           roundedUsdBalance,
           originalBalance,
@@ -173,6 +179,7 @@ const main = async ({ budgetYear, reportMode } = {}) => {
 
       return {
         accountName,
+        accountNumber,
         usdBalance: roundedUsdBalance,
         type,
         ...(type === "Other" ? { typeDetails } : {}),
