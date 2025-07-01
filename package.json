@@ -7,7 +7,7 @@
   "author": "Julian Dominguez-Schatz <julian.dominguezschatz@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@actual-app/api": "^6.7.1"
+    "@actual-app/api": "^25.6.0"
   },
   "scripts": {
     "pull": "scripts/pull",
