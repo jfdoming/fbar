@@ -114,7 +114,7 @@ const main = async ({ budgetYear, reportMode } = {}) => {
       const date = row["date"];
 
       if (metadata === null) {
-        return { accountName, originalBalance: balance, date, type: "Bank" };
+        return { accountName, originalMaxBalance: balance, date, type: "Bank" };
       }
 
       const account = accountMetadata[row["account.name"]];
@@ -124,7 +124,9 @@ const main = async ({ budgetYear, reportMode } = {}) => {
           ? currencyMetadata[accountCurrency]
           : accountCurrency;
       if (typeof currencyDetails !== "object") {
-        throw new Error(`Currency ${accountCurrency} is not valid`);
+        throw new Error(
+          `Currency ${accountCurrency} is not valid for account ${accountName}`
+        );
       }
 
       const fullExchangeRate = await fx.getUSDExchangeRate(
@@ -138,7 +140,7 @@ const main = async ({ budgetYear, reportMode } = {}) => {
         "USD",
         0
       );
-      const originalBalance = fx.formatCurrency(
+      const originalMaxBalance = fx.formatCurrency(
         balance,
         currencyDetails["code"] ??
           (typeof accountCurrency === "string" ? accountCurrency : undefined)
@@ -168,7 +170,7 @@ const main = async ({ budgetYear, reportMode } = {}) => {
           accountNumber,
           usdBalance,
           roundedUsdBalance,
-          originalBalance,
+          originalMaxBalance,
           exchangeRate,
           date,
           type,
@@ -223,11 +225,13 @@ const main = async ({ budgetYear, reportMode } = {}) => {
     const reportAccounts = Object.entries(accountMetadata)
       .filter(([, account]) => account.report === true)
       .map(([name]) => name);
-    console.error(
-      `Please ensure you also report the following accounts: ${reportAccounts.join(
-        ","
-      )}`
-    );
+    if (reportAccounts.length) {
+      console.error(
+        `Please ensure you also report the following accounts: ${reportAccounts.join(
+          ","
+        )}`
+      );
+    }
   }
 };
 

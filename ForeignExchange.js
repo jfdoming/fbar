@@ -37,6 +37,7 @@ class ForeignExchange {
         currency: code,
         currencyDisplay: "code",
         maximumFractionDigits: maxDigits,
+        useGrouping: false, // FBAR form doesn't support non-numeric inputs
       });
     }
 
