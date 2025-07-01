@@ -52,8 +52,8 @@ yarn pull
 
 ### Additional options
 
-- **Simple mode** (default): Returns rounded USD balances only
-- **Full mode**: Includes exchange rates, original balances, and dates
+- **Simple mode** (default): Returns maximum balances only (in USD)
+- **Full mode**: Includes exchange rates and additional metadata from `account_metadata.js`
 
 ```bash
 yarn pull --budget-year 2024 --report-mode full
