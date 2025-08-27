@@ -5,16 +5,16 @@ __metadata:
   version: 8
   cacheKey: 10c0
 
-"@actual-app/api@npm:^25.6.0":
-  version: 25.6.1
-  resolution: "@actual-app/api@npm:25.6.1"
+"@actual-app/api@npm:^25.8.0":
+  version: 25.8.0
+  resolution: "@actual-app/api@npm:25.8.0"
   dependencies:
     "@actual-app/crdt": "npm:^2.1.0"
     better-sqlite3: "npm:^11.10.0"
     compare-versions: "npm:^6.1.1"
     node-fetch: "npm:^3.3.2"
-    uuid: "npm:^9.0.1"
-  checksum: 10c0/a4fdf371d685dc467e2c4a1aca336239a281686c368db1358810ae52f77d3bbcf5eb56f342ea13443d751544ebad6808f679012def918d0d2b6dab940b9d3483
+    uuid: "npm:^11.1.0"
+  checksum: 10c0/002fa56c176069d3be013767cedd8b700d39be308caf544de25aea4fb5def3722d809bfbfacea0b53c78fa46535ecdb87c114416fa1a94d4c451b96f80c50468
   languageName: node
   linkType: hard
 
@@ -370,7 +370,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "fbar@workspace:."
   dependencies:
-    "@actual-app/api": "npm:^25.6.0"
+    "@actual-app/api": "npm:^25.8.0"
   languageName: unknown
   linkType: soft
 
@@ -1192,7 +1192,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uuid@npm:^9.0.0, uuid@npm:^9.0.1":
+"uuid@npm:^11.1.0":
+  version: 11.1.0
+  resolution: "uuid@npm:11.1.0"
+  bin:
+    uuid: dist/esm/bin/uuid
+  checksum: 10c0/34aa51b9874ae398c2b799c88a127701408cd581ee89ec3baa53509dd8728cbb25826f2a038f9465f8b7be446f0fbf11558862965b18d21c993684297628d4d3
+  languageName: node
+  linkType: hard
+
+"uuid@npm:^9.0.0":
   version: 9.0.1
   resolution: "uuid@npm:9.0.1"
   bin:
