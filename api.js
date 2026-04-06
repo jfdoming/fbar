@@ -3,10 +3,18 @@ import fs from "node:fs/promises";
 import api from "@actual-app/api";
 
 export const setup = async () => {
+  const passwordOrSessionToken = process.env.ACTUAL_SERVER_PASSWORD
+    ? {
+        password: process.env.ACTUAL_SERVER_PASSWORD,
+      }
+    : {
+        sessionToken: process.env.ACTUAL_SERVER_SESSION_TOKEN,
+      };
+
   await api.init({
     dataDir: "data/",
     serverURL: process.env.ACTUAL_SERVER,
-    password: process.env.ACTUAL_SERVER_PASSWORD,
+    ...passwordOrSessionToken,
   });
 
   try {
