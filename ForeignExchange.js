@@ -11,15 +11,14 @@ class ForeignExchange {
   async getUSDExchangeRate(country, currency) {
     const symbol = `${country}-${currency}`;
     if (this.#exchangeRates[symbol] === undefined) {
-      const response = await fetch(
-        `https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/od/rates_of_exchange?fields=exchange_rate&filter=country_currency_desc:eq:${symbol},record_date:eq:${
-          this.#date
-        }`
-      );
+      const url = `https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/od/rates_of_exchange?fields=exchange_rate&filter=country_currency_desc:eq:${symbol},record_date:eq:${
+        this.#date
+      }`;
+      const response = await fetch(url);
       const { data: responseData } = await response.json();
       if (responseData.length === 0) {
         throw new Error(
-          `No exchange rate available for date ${
+          `No exchange rate available for ${symbol} on date ${
             this.#date
           }. Ensure the date is in the past and aligns with the end of a quarter`
         );
