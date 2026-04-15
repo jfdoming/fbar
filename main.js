@@ -124,11 +124,17 @@ const main = async ({ budgetYear, reportMode, loadFx } = {}) => {
   const results = await inOrder(
     accountMaxes.map(async (row) => {
       const accountName = row["account.name"];
-      const balance = row["runningBalance"] / 100;
+      const unscaledBalance = row["runningBalance"];
       const date = row["date"];
 
       if (metadata === null) {
-        return { accountName, originalMaxBalance: balance, date, type: "Bank" };
+        return {
+          accountName,
+          // Default to two decimal places if not specified
+          originalMaxBalance: unscaledBalance / 100,
+          date,
+          type: "Bank",
+        };
       }
 
       const account = accountMetadata[row["account.name"]];
@@ -142,6 +148,9 @@ const main = async ({ budgetYear, reportMode, loadFx } = {}) => {
           `Currency ${accountCurrency} is not valid for account ${accountName}`
         );
       }
+
+      const balance =
+        unscaledBalance / Math.pow(10, currencyDetails["decimalPlaces"] ?? 2);
 
       const fullExchangeRate = await fx.getUSDExchangeRate(
         currencyDetails["country"],
