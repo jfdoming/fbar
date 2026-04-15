@@ -8,6 +8,10 @@ export default {
     type: "boolean",
     default: false,
   },
+  "load-budget": {
+    type: "string",
+    default: "",
+  },
   "report-mode": {
     type: "string",
     values: ["simple", "short", "full"],

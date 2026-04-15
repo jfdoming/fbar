@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 
 import api from "@actual-app/api";
 
-export const setup = async () => {
+export const setup = async ({ loadBudget = "" } = {}) => {
   const passwordOrSessionToken = process.env.ACTUAL_SERVER_PASSWORD
     ? {
         password: process.env.ACTUAL_SERVER_PASSWORD,
@@ -10,11 +10,16 @@ export const setup = async () => {
     : {
         sessionToken: process.env.ACTUAL_SERVER_SESSION_TOKEN,
       };
+  const serverDetails = loadBudget
+    ? {}
+    : {
+        serverURL: process.env.ACTUAL_SERVER,
+        ...passwordOrSessionToken,
+      };
 
   await api.init({
     dataDir: "data/",
-    serverURL: process.env.ACTUAL_SERVER,
-    ...passwordOrSessionToken,
+    ...serverDetails,
   });
 
   try {
@@ -25,17 +30,24 @@ export const setup = async () => {
     }
   }
 
-  // This is the ID from Settings → Show advanced settings → Sync ID
-  await api.downloadBudget(process.env.ACTUAL_SYNC_ID, {
-    password: process.env.ACTUAL_BUDGET_PASSWORD,
-  });
+  if (loadBudget) {
+    // loadBudget is the budget ID from the data/ directory
+    await api.loadBudget(loadBudget, {
+      password: process.env.ACTUAL_BUDGET_PASSWORD,
+    });
+  } else {
+    // ACTUAL_SYNC_ID is the ID from Settings → Show advanced settings → Sync ID
+    await api.downloadBudget(process.env.ACTUAL_SYNC_ID, {
+      password: process.env.ACTUAL_BUDGET_PASSWORD,
+    });
+  }
 };
 
 export const teardown = api.shutdown;
 
-export const runCallback = async (callback) => {
+export const runCallback = async (callback, options = {}) => {
   try {
-    await setup();
+    await setup(options);
     await callback();
   } catch (e) {
     console.error(e);

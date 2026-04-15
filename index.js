@@ -32,7 +32,7 @@ await inOrder(
   })
 );
 
-if (values.forceRecrease) {
+if (values.forceRecreate) {
   await fs.rm("data/", { recursive: true, force: true });
 }
-runCallback(() => main(values));
+runCallback(() => main(values), { loadBudget: values.loadBudget });
