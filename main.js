@@ -21,17 +21,24 @@ const maxBy = (rows, field) => {
 
 const getMaximumBalance = (budgetYear) => async (account) => {
   const { id, name } = account;
-  const { data: runningBalances } = await runQuery(
+  const { data } = await runQuery(
     q("transactions")
       .options({ splits: "none" })
       .filter({ account: account.id })
-      .orderBy({ date: "desc" })
-      .select([
-        "account.name",
-        "date",
-        { runningBalance: { $sumOver: "$amount" } },
-      ])
+      .orderBy({ date: "asc" })
+      .select(["account.name", "date", "amount", "notes"])
   );
+
+  const runningBalances = [];
+  runningBalances.length = data.length;
+  data.forEach((row, i) => {
+    const prev = i == 0 ? 0 : runningBalances[i - 1].runningBalance;
+    runningBalances[i] = {
+      ...row,
+      runningBalance: prev + row.amount,
+    };
+  });
+
   const runningBalancesInYear = runningBalances.filter(
     (row) => String(new Date(row.date).getFullYear()) === budgetYear
   );
