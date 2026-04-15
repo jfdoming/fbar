@@ -1,6 +1,9 @@
 import { q, runQuery } from "@actual-app/api";
 
-import ForeignExchange from "./ForeignExchange.js";
+import ForeignExchange, {
+  RemoteForeignExchangeLoader,
+  LocalForeignExchangeLoader,
+} from "./ForeignExchange.js";
 import { inOrder, endOfYear } from "./utils.js";
 
 const maxBy = (rows, field) => {
@@ -55,7 +58,7 @@ const getMetadata = async () => {
   }
 };
 
-const main = async ({ budgetYear, reportMode } = {}) => {
+const main = async ({ budgetYear, reportMode, loadFx } = {}) => {
   if (!budgetYear) {
     throw new Error("budgetYear is required");
   }
@@ -104,7 +107,11 @@ const main = async ({ budgetYear, reportMode } = {}) => {
   const accountMaxes = await inOrder(
     filteredAccounts.map(getMaximumBalance(budgetYear))
   );
-  const fx = new ForeignExchange(endOfYear(new Date(budgetYear, 0)));
+  const fx = new ForeignExchange(
+    loadFx
+      ? new LocalForeignExchangeLoader(loadFx)
+      : new RemoteForeignExchangeLoader(endOfYear(new Date(budgetYear, 0)))
+  );
 
   // See https://web.archive.org/web/20240603020448/https://www.fincen.gov/reporting-maximum-account-value for details on rounding/FX.
   const results = await inOrder(

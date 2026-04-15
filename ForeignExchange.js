@@ -1,9 +1,17 @@
-class ForeignExchange {
+import fs from "fs/promises";
+
+class AbstractForeignExchangeLoader {
+  async getUSDExchangeRate(country, currency) {
+    throw new TypeError("Not yet implemented");
+  }
+}
+
+export class RemoteForeignExchangeLoader extends AbstractForeignExchangeLoader {
   #exchangeRates = {};
-  #formatters = {};
   #date;
 
   constructor(date) {
+    super();
     this.#date = date.toISOString().split("T")[0];
   }
 
@@ -26,6 +34,79 @@ class ForeignExchange {
       this.#exchangeRates[symbol] = 1 / Number(responseData[0].exchange_rate);
     }
     return this.#exchangeRates[symbol];
+  }
+}
+
+export class LocalForeignExchangeLoader extends AbstractForeignExchangeLoader {
+  #exchangeRates = {};
+  #filePath;
+
+  constructor(filePath) {
+    super();
+    this.#filePath = filePath;
+  }
+
+  async getUSDExchangeRate(country, currency) {
+    const symbol = `${country}-${currency}`;
+    if (this.#exchangeRates[symbol] === undefined) {
+      const fileHandle = await fs.open(this.#filePath);
+      try {
+        let header = null;
+        const exchangeRates = {};
+        for await (const line of fileHandle.readLines()) {
+          if (header) {
+            const rawValues = line.split(",").map((s) => s.trim());
+            if (
+              header["currency2"] !== undefined &&
+              rawValues[header["currency2"]] != "United States-Dollar"
+            ) {
+              throw new TypeError(
+                "Conversions to currencies other than USD are not currently supported"
+              );
+            }
+            exchangeRates[rawValues[header["currency1"]]] = Number(
+              rawValues[header["rate"]]
+            );
+          } else {
+            const rawHeader = line
+              .split(",")
+              .map((s) => s.trim())
+              .map((s) => (s == "currency" ? "currency1" : s));
+            if (!rawHeader.includes("currency1")) {
+              throw new TypeError("A currency field is required");
+            }
+            if (!rawHeader.includes("rate")) {
+              throw new TypeError("A rate field is required");
+            }
+            header = Object.fromEntries(rawHeader.map((name, i) => [name, i]));
+          }
+        }
+
+        this.#exchangeRates = exchangeRates;
+        if (this.#exchangeRates[symbol] === undefined) {
+          throw new TypeError(
+            `No exchange rate data available for symbol ${symbol}`
+          );
+        }
+      } finally {
+        fileHandle.close();
+      }
+    }
+
+    return this.#exchangeRates[symbol];
+  }
+}
+
+class ForeignExchange {
+  #loader;
+  #formatters = {};
+
+  constructor(loader) {
+    this.#loader = loader;
+  }
+
+  async getUSDExchangeRate(country, currency) {
+    return this.#loader.getUSDExchangeRate(country, currency);
   }
 
   formatCurrency(value, code, maxDigits = undefined) {

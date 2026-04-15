@@ -12,6 +12,10 @@ export default {
     type: "string",
     default: "",
   },
+  "load-fx": {
+    type: "string",
+    default: "",
+  },
   "report-mode": {
     type: "string",
     values: ["simple", "short", "full"],
