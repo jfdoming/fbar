@@ -4,6 +4,10 @@ import ForeignExchange, {
   RemoteForeignExchangeLoader,
   LocalForeignExchangeLoader,
 } from "./ForeignExchange.js";
+import {
+  inferCurrencyFromAccount,
+  extractCurrencyFromNotes,
+} from "./account_conventions.js";
 import { inOrder, endOfYear } from "./utils.js";
 
 const maxBy = (rows, field) => {
@@ -20,6 +24,12 @@ const maxBy = (rows, field) => {
 };
 
 const getMaximumBalance = (budgetYear) => async (account) => {
+  const currencyShortSymbol = inferCurrencyFromAccount(account);
+  const getAmount = currencyShortSymbol
+    ? (transaction) =>
+        extractCurrencyFromNotes(currencyShortSymbol, transaction)
+    : (transaction) => transaction.amount;
+
   const { id, name } = account;
   const { data } = await runQuery(
     q("transactions")
@@ -35,7 +45,7 @@ const getMaximumBalance = (budgetYear) => async (account) => {
     const prev = i == 0 ? 0 : runningBalances[i - 1].runningBalance;
     runningBalances[i] = {
       ...row,
-      runningBalance: prev + row.amount,
+      runningBalance: prev + getAmount(row),
     };
   });
 
